@@ -6,36 +6,38 @@
 //
 
 import SwiftUI
-import MapKit
+import LocalAuthentication
 
 struct ContentView: View {
-    @State private var position = MapCameraPosition.region(MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
-        span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1))
-    )
+    @State private var isUnlocked = false
     
     var body: some View {
         VStack {
-            Map(position: $position)
-                .mapStyle(.hybrid)
-                .onMapCameraChange {
-                    print($0.region)
-                }
-            HStack(spacing: 50) {
-                Button("Paris") {
-                    position = MapCameraPosition.region(MKCoordinateRegion(
-                        center: CLLocationCoordinate2D(latitude: 48.8566, longitude: 2.3522),
-                        span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1))
-                    )
-                }
-                
-                Button("Tokyo") {
-                    position = MapCameraPosition.region(MKCoordinateRegion(
-                        center: CLLocationCoordinate2D(latitude: 35.6897, longitude: 139.6922),
-                        span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1))
-                    )
+            if isUnlocked {
+                Text("Unlocked")
+            } else {
+                Text("Locked")
+            }
+        }
+        .onSubmit(authenticate)
+        
+    }
+    
+    private func authenticate() {
+        let context = LAContext()
+        var error: NSError?
+        
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            let reason = "We need to unlock your data"
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
+                if success {
+                    isUnlocked = true
+                } else {
+                    //there was a problem
                 }
             }
+        } else {
+            //no biometrics
         }
     }
     
