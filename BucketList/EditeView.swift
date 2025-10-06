@@ -37,9 +37,9 @@ struct EditeView: View {
                         ForEach(pages, id: \.pageid) { page in
                             Text(page.title)
                                 .font(.headline)
-//                            + Text(": ") +
-//                            Text(page.description)
-//                                .italic()
+                            + Text(": ") +
+                            Text(page.description)
+                                .italic()
                         }
                     case .loading:
                         Text("Loading…")
